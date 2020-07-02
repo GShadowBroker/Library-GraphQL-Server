@@ -9,7 +9,7 @@ const User = require('./models/User')
 const db = require('./models/db')
 
 db().then(() => console.log('Connection to database estabilished'.green))
-    .catch(err => console.log('Error connection to database'.red, err.message))
+    .catch(err => console.log('Error connecting to database'.red, err.message))
 
 const server = new ApolloServer({
     typeDefs,
