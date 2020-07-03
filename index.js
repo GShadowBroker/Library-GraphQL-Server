@@ -26,4 +26,8 @@ const server = new ApolloServer({
 })
 
 server.listen()
-    .then(({ url }) => console.log(`Server ready at ${url}`.blue))
+    .then(({ url, subscriptionsUrl }) => {
+        console.log(`Server ready at ${url}`.blue)
+        console.log(`Subscriptions ready at ${subscriptionsUrl}`.blue)
+    })
+    

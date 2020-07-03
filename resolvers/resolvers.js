@@ -1,9 +1,11 @@
 const Author = require('../models/Author')
 const Book = require('../models/Book')
-const { UserInputError, ApolloError, AuthenticationError } = require('apollo-server')
+const { UserInputError, ApolloError, AuthenticationError, PubSub } = require('apollo-server')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+
+const pubsub = new PubSub()
 
 module.exports = {
     Query: {
@@ -107,6 +109,7 @@ module.exports = {
                     })
                 }
 
+                pubsub.publish('BOOK_ADDED', { bookAdded: savedBook })
                 return savedBook.populate('author').execPopulate()
 
             } else { // If author already exists
@@ -136,7 +139,7 @@ module.exports = {
                         invalidArgs: args,
                     })
                 }
-
+                pubsub.publish('BOOK_ADDED', { bookAdded: savedBook })
                 return savedBook.populate('author').execPopulate()
             }
         },
@@ -208,7 +211,11 @@ module.exports = {
                 id: user._id
             }
 
-            return { value: jwt.sign(payload, process.env.TOKEN_SECRET) }
+            return {
+                username: user.username,
+                id: user.id,
+                value: jwt.sign(payload, process.env.TOKEN_SECRET)
+            }
         },
 
         requestFriend: async (root, args, context) => {
@@ -283,6 +290,12 @@ module.exports = {
             const updatedUser = await myUser.save()
 
             return updatedUser.populate('friends').populate('friend_requests').execPopulate()
+        }
+    },
+
+    Subscription: {
+        bookAdded: {
+            subscribe: () => pubsub.asyncIterator(['BOOK_ADDED'])
         }
     }
 }

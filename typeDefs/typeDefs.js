@@ -10,6 +10,8 @@ module.exports = gql`
     }
 
     type Token {
+        username: String!
+        id: ID!
         value: String!
     }
 
@@ -81,5 +83,9 @@ module.exports = gql`
         rejectFriend(
             id: ID!
         ): User
+    }
+
+    type Subscription {
+        bookAdded: Book!
     }
 `
